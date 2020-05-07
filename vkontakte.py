@@ -2,7 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 import datetime
-import pdb
+
 
 
 def check_response(response):
@@ -85,11 +85,11 @@ def filter_comments(comments, period=1209600):
     return comments_filtred
 
 
-def get_filtred_comments_author_ids(comments_filtred):
-    comments_filtred_author_ids = [
+def get_filtered_comments_author_ids(comments_filtred):
+    comments_filtered_author_ids = [
         comment_author['id'] for comment_author in comments_filtred
     ]
-    return set(comments_filtred_author_ids)
+    return set(comments_filtered_author_ids)
 
 
 def get_likes_author_ids(vk_token, group_id, post_id):
@@ -121,8 +121,8 @@ def run_vk():
     likes_author_ids = set()
     for post_id in posts_ids:
         comments = get_comments(vk_token, post_id, group_id)
-        comments_filtred = filter_comments(comments)
-        comments_author_ids.update(get_filtred_comments_author_ids(comments_filtred))
+        comments_filtered = filter_comments(comments)
+        comments_author_ids.update(get_filtered_comments_author_ids(comments_filtered))
         likes_author_ids.update(get_likes_author_ids(vk_token, group_id, post_id))
     core_audience_ids = comments_author_ids.intersection(likes_author_ids)
     print(core_audience_ids)
