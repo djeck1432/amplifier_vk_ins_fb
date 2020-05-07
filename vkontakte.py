@@ -77,11 +77,12 @@ def filter_comments(comments, period=1209600):
     comments_filtred = []
     now_timestamp = datetime.datetime.now().strftime('%s')
     for comment in comments:
-        if comment.get('text'):
-            date = comment['date']
-            timedelta = int(now_timestamp) - date
-            if period < timedelta:
-                comments_filtred.append(comment)
+        if not comment.get('text'):
+            continue
+        date = comment['date']
+        timedelta = int(now_timestamp) - date
+        if period < timedelta:
+            comments_filtred.append(comment)
     return comments_filtred
 
 
