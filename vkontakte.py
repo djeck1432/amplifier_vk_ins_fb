@@ -122,8 +122,8 @@ def run_vk():
     likes_author_ids = set()
     for post_id in posts_ids:
         comments = get_comments(vk_token, post_id, group_id)
-        comments_filtered = filter_comments(comments)
-        comments_author_ids.update(get_filtered_comments_author_ids(comments_filtered))
+        filtered_comments = filter_comments(comments)
+        comments_author_ids.update(get_filtered_comments_author_ids(filtered_comments))
         likes_author_ids.update(get_likes_author_ids(vk_token, group_id, post_id))
     core_audience_ids = comments_author_ids.intersection(likes_author_ids)
     print(core_audience_ids)
