@@ -87,10 +87,10 @@ def filter_comments(comments, period=1209600):
 
 
 def get_filtered_comments_author_ids(comments_filtred):
-    comments_filtered_author_ids = [
+    comments_filtered_author_ids = {
         comment_author['id'] for comment_author in comments_filtred
-    ]
-    return set(comments_filtered_author_ids)
+    }
+    return comments_filtered_author_ids
 
 
 def get_likes_author_ids(vk_token, group_id, post_id):
