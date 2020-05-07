@@ -2,6 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 import datetime
+import pdb
 
 
 def check_response(response):
@@ -23,7 +24,7 @@ def get_payload(vk_token, offset):
     return payload
 
 
-def fetch_posts(vk_token, vk_group_name):
+def fetch_posts_ids(vk_token, vk_group_name):
     url = 'https://api.vk.com/method/wall.get'
     offset = 0
     count_posts = 100
@@ -53,7 +54,7 @@ def get_group_id(vk_token, vk_group_name):
     return f"-{vk_response[0]['id']}"
 
 
-def get_commetns(vk_token, post_id, group_id):
+def get_comments(vk_token, post_id, group_id):
     url = 'https://api.vk.com/method/wall.getComments'
     offset = 0
     comments_count = 100
@@ -72,23 +73,23 @@ def get_commetns(vk_token, post_id, group_id):
     return comments
 
 
-def filter_comments_author_ids(comments, period=1209600):
-    filter_comments_author_ids = []
+def filter_comments(comments, period=1209600):
+    comments_filtred = []
     now_timestamp = datetime.datetime.now().strftime('%s')
     for comment in comments:
         if comment.get('text'):
             date = comment['date']
             timedelta = int(now_timestamp) - date
             if period < timedelta:
-                filter_comments_author_ids.append(comment['id'])
-    return filter_comments_author_ids
+                comments_filtred.append(comment)
+    return comments_filtred
 
 
-def get_comments_author_ids(period_filter_comments, group_id):
-    filter_comments_author_ids = [
-        user_id for user_id in period_filter_comments if user_id != group_id
+def get_filtred_comments_author_ids(comments_filtred):
+    comments_filtred_author_ids = [
+        comment_author['id'] for comment_author in comments_filtred
     ]
-    return set(filter_comments_author_ids)
+    return set(comments_filtred_author_ids)
 
 
 def get_likes_author_ids(vk_token, group_id, post_id):
@@ -115,14 +116,15 @@ def run_vk():
     vk_posts_amount = os.getenv('VK_POSTS_AMOUNT')
 
     group_id = get_group_id(vk_token, vk_group_name)
-    posts = fetch_posts(vk_token, vk_group_name)[:int(vk_posts_amount)]
-    core_audience_ids = []
-    for post_id in posts:
-        comments = get_commetns(vk_token, post_id, group_id)
-        period_filter_comments = filter_comments_author_ids(comments)
-        comments_author_ids = get_comments_author_ids(period_filter_comments, group_id)
-        likes_author_ids = get_likes_author_ids(vk_token, group_id, post_id)
-        core_audience_ids += comments_author_ids.intersection(likes_author_ids)
+    posts_ids = fetch_posts_ids(vk_token, vk_group_name)[:int(vk_posts_amount)]
+    comments_author_ids = set()
+    likes_author_ids = set()
+    for post_id in posts_ids:
+        comments = get_comments(vk_token, post_id, group_id)
+        comments_filtred = filter_comments(comments)
+        comments_author_ids.update(get_filtred_comments_author_ids(comments_filtred))
+        likes_author_ids.update(get_likes_author_ids(vk_token, group_id, post_id))
+    core_audience_ids = comments_author_ids.intersection(likes_author_ids)
     print(core_audience_ids)
 
 
