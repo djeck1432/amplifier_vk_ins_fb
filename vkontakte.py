@@ -86,13 +86,6 @@ def filter_comments(comments, period=1209600):
     return comments_filtred
 
 
-def get_filtered_comments_author_ids(comments_filtred):
-    comments_filtered_author_ids = {
-        comment_author['id'] for comment_author in comments_filtred
-    }
-    return comments_filtered_author_ids
-
-
 def get_likes_author_ids(vk_token, group_id, post_id):
     url = 'https://api.vk.com/method/likes.getList'
     offset = 0
@@ -123,7 +116,10 @@ def run_vk():
     for post_id in posts_ids:
         comments = get_comments(vk_token, post_id, group_id)
         filtered_comments = filter_comments(comments)
-        comments_author_ids.update(get_filtered_comments_author_ids(filtered_comments))
+        comments_filtered_author_ids = {
+            comment_author['id'] for comment_author in filtered_comments
+        }
+        comments_author_ids.update(comments_filtered_author_ids)
         likes_author_ids.update(get_likes_author_ids(vk_token, group_id, post_id))
     core_audience_ids = comments_author_ids.intersection(likes_author_ids)
     print(core_audience_ids)
