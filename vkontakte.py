@@ -74,7 +74,7 @@ def get_comments(vk_token, post_id, group_id):
 
 
 def filter_comments(comments, period=1209600):
-    comments_filtred = []
+    comments_filetred = []
     now_timestamp = datetime.datetime.now().strftime('%s')
     for comment in comments:
         if not comment.get('text'):
@@ -82,8 +82,8 @@ def filter_comments(comments, period=1209600):
         date = comment['date']
         timedelta = int(now_timestamp) - date
         if period < timedelta:
-            comments_filtred.append(comment)
-    return comments_filtred
+            comments_filetred.append(comment)
+    return comments_filetred
 
 
 def get_likes_author_ids(vk_token, group_id, post_id):
@@ -117,7 +117,7 @@ def run_vk():
         comments = get_comments(vk_token, post_id, group_id)
         filtered_comments = filter_comments(comments)
         comments_filtered_author_ids = {
-            comment_author['id'] for comment_author in filtered_comments
+            comment_author['from_id'] for comment_author in filtered_comments
         }
         comments_author_ids.update(comments_filtered_author_ids)
         likes_author_ids.update(get_likes_author_ids(vk_token, group_id, post_id))
